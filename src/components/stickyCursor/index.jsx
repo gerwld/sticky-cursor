@@ -1,9 +1,11 @@
 "use client"
-import React, { useEffect, useLayoutEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import style from './style.module.scss';
 import { motion, useMotionValue, useSpring, transform } from 'framer-motion';
+import { animate } from 'framer-motion';
 
 const index = ({stickyElement}) => {
+    const cursorRef = useRef(null);
     const [isHovered, setIsHovered] = useState(false);
     const CURSOR_SIZE = isHovered ? 60 : 20;
     const mouse = { 
@@ -48,16 +50,17 @@ const index = ({stickyElement}) => {
             [0, width / 2], 
             [1, 0.8]);
 
-        scale.x.set(newScaleX);
-        scale.y.set(newScaleY);
-
         
         if(isHovered) {
+
+            scale.x.set(newScaleX); // изменение scale
+            scale.y.set(newScaleY); // относительно absDistance
+
             // mouse.x.set((center.x - CURSOR_SIZE / 2)); // обычное положение без мышки (центр)
             // mouse.y.set((center.y - CURSOR_SIZE / 2)); // обычное положение без мышки (центр)
             mouse.x.set((center.x - CURSOR_SIZE / 2 + distance.x / 5)); // с 0.2 от положения мышки
             mouse.y.set((center.y - CURSOR_SIZE / 2 + distance.y / 5));  // с 0.2 от положения мышки    
-        } else {            
+        } else {              
             mouse.x.set(clientX - CURSOR_SIZE / 2);
             mouse.y.set(clientY - CURSOR_SIZE / 2);     
         }
@@ -69,6 +72,8 @@ const index = ({stickyElement}) => {
 
     const manageMouseLeave = () => {
         setIsHovered(false);
+
+        animate(cursorRef.current, {scaleX: 1, scaleY: 1}, {duration: 0.1}, {type: "spring"}); // возврат scale на mouseleave
     }
 
     useLayoutEffect(() => {
@@ -84,6 +89,7 @@ const index = ({stickyElement}) => {
 
   return (
     <motion.div 
+    ref={cursorRef}
     style={{
         left: smoothMouse.x, 
         top: smoothMouse.y,
