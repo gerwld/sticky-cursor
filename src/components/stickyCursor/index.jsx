@@ -1,5 +1,5 @@
 "use client"
-import React, { useLayoutEffect, useState } from 'react'
+import React, { useEffect, useLayoutEffect, useState } from 'react'
 import style from './style.module.scss';
 import { motion, useMotionValue, useSpring } from 'framer-motion';
 
@@ -19,14 +19,20 @@ const index = ({stickyElement}) => {
 
     const manageMouseMove = (e) => {
         const {clientX, clientY} = e;
-        mouse.x.set(clientX - CURSOR_SIZE / 2);
-        mouse.y.set(clientY - CURSOR_SIZE / 2);
+        const {left, top, width, height} = stickyElement.current.getBoundingClientRect();
+        const center = {x: left + width / 2, y: top + height / 2};
+        
+        if(isHovered) {
+            mouse.x.set(center.x - CURSOR_SIZE / 2);
+            mouse.y.set(center.y - CURSOR_SIZE / 2);      
+        } else {            
+            mouse.x.set(clientX - CURSOR_SIZE / 2);
+            mouse.y.set(clientY - CURSOR_SIZE / 2);     
+        }
     }
 
     const manageMouseOver = () => {
         setIsHovered(true);
-        console.log(true);
-        
     }
 
     const manageMouseLeave = () => {
@@ -34,7 +40,7 @@ const index = ({stickyElement}) => {
     }
 
     useLayoutEffect(() => {
-        window.addEventListener("mousemove", manageMouseMove)
+        window.addEventListener("mousemove", manageMouseMove) 
         stickyElement.current.addEventListener("mouseover", manageMouseOver)
         stickyElement.current.addEventListener("mouseleave", manageMouseLeave)
         return () => {
