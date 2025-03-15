@@ -24,12 +24,17 @@ const index = ({stickyElement}) => {
         y: useMotionValue(1),
     }
 
+    const rotate = (distance) => {
+        const angle = Math.atan2(distance.y, distance.x);
+        animate(cursorRef.current, {rotate: `${angle}rad`}, {duration:0})
+    }
+
+
     const manageMouseMove = (e) => {
         const {clientX, clientY} = e;
         const {left, top, width, height} = stickyElement.current.getBoundingClientRect();
         const center = {x: left + width / 2, y: top + height / 2}; // center pos of stickyElement
         const distance = {x: clientX - center.x, y: clientY - center.y}
-        
 
         // найбольшее расстояние не между clientXY, 
         // а между мышкой и stickyElement, вне зависимости от оси
@@ -52,6 +57,9 @@ const index = ({stickyElement}) => {
 
         
         if(isHovered) {
+
+            rotate(distance); // поворот относительно мышки
+
 
             scale.x.set(newScaleX); // изменение scale
             scale.y.set(newScaleY); // относительно absDistance
@@ -87,8 +95,12 @@ const index = ({stickyElement}) => {
         } 
     })
 
+    const template = ({rotate, scaleX, scaleY}) => (
+        `rotate(${rotate}) scaleX(${scaleX}) scaleY(${scaleY})`
+    )
   return (
     <motion.div 
+    transformTemplate={template}
     ref={cursorRef}
     style={{
         left: smoothMouse.x, 
